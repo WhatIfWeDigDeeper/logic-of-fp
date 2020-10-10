@@ -1,5 +1,5 @@
-describe('Pure functions', (): void => {
-  const range = (n: number, start: number = 0): number[] =>
+describe('pure functions', (): void => {
+  const range = (n: number, start = 0): number[] =>
     Array(n)
       .fill(0)
       .map((_, i) => i + 1 + start);
@@ -28,7 +28,7 @@ describe('Pure functions', (): void => {
       }
     );
   });
-  describe('non-idempotent, side effects, opaque (impure)', (): void => {
+  describe('impure functions', (): void => {
     let counter = 0;
     function incremental(x: number): number {
       // opaque: reaches outside the function
@@ -44,3 +44,54 @@ describe('Pure functions', (): void => {
     });
   });
 });
+
+// property assertion testing
+// const jsc = require('jsverify');
+// see WhenUpdatingPricesTests.ts in v2 api
+// it('should getUpdatedPricing with combinatorial tests', () => {
+//   const positiveNumber = jsc.number(0.01, 999999.99);
+//   const nullValue = jsc.constant(null);
+//   expect(
+//     jsc.check(
+//       jsc.forall(
+//         // cart
+//         positiveNumber,
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         // repo
+//         positiveNumber,
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         (
+//           list: any,
+//           sale: any,
+//           pvList: any,
+//           pvSale: any,
+//           rList: any,
+//           rSale: any,
+//           rpvList: any,
+//           rpvSale: any
+//         ) => {
+//           const cartItemProduct = createItemProduct(list, sale, pvList, pvSale);
+//           const repoItemProduct = createItemProduct(
+//             rList,
+//             rSale,
+//             rpvList,
+//             rpvSale
+//           );
+//           const actual = getUpdatedPricing(cartItemProduct, repoItemProduct);
+//           // precedence order.
+//           return (
+//             actual.pricing.listPrice === rpvList ||
+//             actual.pricing.listPrice === rList ||
+//             actual.pricing.listPrice === pvList ||
+//             actual.pricing.listPrice === list
+//           );
+//         }
+//       )
+//     ),
+//     { rngState: '143e9c5f037a8c37b2' } as any
+//   ).equals(true);
+// });

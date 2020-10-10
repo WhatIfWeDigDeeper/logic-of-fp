@@ -12,7 +12,11 @@ module.exports = {
     'prettier',
     'prettier/@typescript-eslint',
   ],
+  rules: {
+    "@typescript-eslint/no-unused-vars": 0
+  },
   env: {
     "jest/globals": true,
+    "node": true
   }
 };

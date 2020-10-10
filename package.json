@@ -32,7 +32,10 @@
   },
   "scripts": {
     "compile": "tsc --pretty",
+    "compile:watch": "tsc --pretty --watch",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
-    "test": "jest"
+    "lint:fix": "eslint . --ext .js,.jsx,.ts,.tsx",
+    "test": "jest",
+    "test:watch": "jest --watch"
   }
 }
