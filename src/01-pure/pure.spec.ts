@@ -1,8 +1,8 @@
 describe('pure vs impure functions', (): void => {
-  const range = (n: number, start = 0): number[] =>
-    Array(n)
-      .fill(0)
-      .map((_, i) => i + 1 + start);
+  // const range = (n: number, start = 0): number[] =>
+  //   Array(n)
+  //     .fill(0)
+  //     .map((_, i) => i + 1 + start);
 
   describe('idempotent or referential transparency or pure', (): void => {
     let counter = 0;
@@ -28,19 +28,19 @@ describe('pure vs impure functions', (): void => {
       expect(result).toEqual(6);
     });
 
-    it.each(range(100))(
-      'is insanity to do the same thing 100x and expect a different result: %s',
-      (_: number) => {
-        expect(increment(5)).toEqual(6);
-      }
-    );
-    // TODO: choose one
-    it.each(range(10))(
-      'all work and no play make Jack a dull boy: %s',
-      (_: number) => {
-        expect(increment(5)).toEqual(6);
-      }
-    );
+    // xit.each(range(100))(
+    //   'is insanity to do the same thing 100x and expect a different result: %s',
+    //   (_: number) => {
+    //     expect(increment(5)).toEqual(6);
+    //   }
+    // );
+    // // TODO: choose one
+    // xit.each(range(10))(
+    //   'all work and no play make Jack a dull boy: %s',
+    //   (_: number) => {
+    //     expect(increment(5)).toEqual(6);
+    //   }
+    // );
   });
 
   describe('slice vs splice', (): void => {
@@ -65,7 +65,7 @@ describe('pure vs impure functions', (): void => {
       expect(sortedAry).toEqual([1, 2, 3]);
       expect(ary).toEqual([1, 2, 3]);
     });
-    it('should not modify the array when a new shallow array is sorted', (): void => {
+    it('should not modify the original array when a new shallow array is sorted', (): void => {
       const ary = [3, 1, 2];
       const sortedAry = ary.slice().sort();
       expect(sortedAry).toEqual([1, 2, 3]);

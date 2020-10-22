@@ -23,5 +23,4 @@ module.exports = {
     '<rootDir>/src/**/*',
   ],
   preset: 'ts-jest',
-  testMatch: null,
 }

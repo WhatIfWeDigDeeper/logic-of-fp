@@ -18,19 +18,29 @@
     "url": "https://github.com/WhatIfWeDigDeeper/logic-of-fp/issues"
   },
   "homepage": "https://github.com/WhatIfWeDigDeeper/logic-of-fp#readme",
+  "dependencies": {
+    "immer": "^7.0.9",
+    "immutable": "^4.0.0-rc.12",
+    "lodash": "^4.17.20",
+    "ramda": "^0.27.1"
+  },
   "devDependencies": {
     "@types/jest": "^26.0.14",
+    "@types/lodash": "^4.14.161",
+    "@types/ramda": "^0.27.23",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
     "eslint": "^7.10.0",
     "eslint-config-prettier": "^6.12.0",
     "eslint-plugin-jest": "^24.0.2",
+    "eslint-plugin-lodash-fp": "^2.2.0-a1",
     "jest": "^26.4.2",
     "prettier": "^2.1.2",
     "ts-jest": "^26.4.1",
     "typescript": "^4.0.3"
   },
   "scripts": {
+    "audit:ci": "npx audit-ci --high",
     "compile": "tsc --pretty",
     "compile:watch": "tsc --pretty --watch",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
