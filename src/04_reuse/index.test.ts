@@ -15,7 +15,7 @@ map(parseInt)(myList);
 // http://stackoverflow.com/questions/218025/what-is-the-difference-between-currying-and-partial-application
 // Currying takes exactly 1 input, whereas partial application takes 2 (or more) inputs.
 
-const add = (x, y) => x + y;
+const add = (x: number, y: number): number => x + y;
 // const partialAdd5 = partial(add, 5);
 // partialAdd5(10);
 

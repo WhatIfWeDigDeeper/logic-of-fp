@@ -3,7 +3,255 @@ import { cloneDeepWith } from 'lodash/fp';
 import { produce } from 'immer';
 import { List, Map, Range, Seq } from 'immutable';
 
-import { Price, Product } from '../types';
+import { Price, Product, ViewProduct } from '../types';
+
+describe('Mutable parameter', (): void => {
+  function getOffer(product: Product): number {
+    if (
+      product.price.sale !== undefined &&
+      product.price.sale < product.price.list
+    ) {
+      product.name = `${product.name} - ON SALE!`;
+      return product.price.sale;
+    }
+    return product.price.list;
+  }
+
+  function createViewProduct(product: Product): ViewProduct {
+    const offerPrice = getOffer(product);
+    const viewProduct: ViewProduct = product as ViewProduct;
+    viewProduct.offerPrice = offerPrice;
+    return viewProduct;
+  }
+
+  // it('will get offerPrice and add ON SALE message', (): void => {
+  //   const price: Price = { list: 19.99, sale: 14.99 };
+  //   const product: Product = { name: 'test', price };
+
+  //   const viewProduct: ViewProduct = createViewProduct(product);
+
+  //   expect(viewProduct.name).toBe('test - ON SALE!');
+  //   expect(viewProduct.offerPrice).toBe(14.99);
+  // });
+
+  // it('will return the same result when called twice', (): void => {
+  //   const price: Price = { list: 19.99, sale: 14.99 };
+  //   const product: Product = { name: 'test', price };
+
+  //   let viewProduct: ViewProduct = createViewProduct(product);
+  //   expect(viewProduct.name).toBe('test - ON SALE!');
+  //   expect(viewProduct.offerPrice).toBe(14.99);
+
+  //   viewProduct = createViewProduct(product);
+  //   expect(viewProduct.name).toBe('test - ON SALE!');
+  //   expect(viewProduct.offerPrice).toBe(14.99);
+  // });
+
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let offerPrice = getOffer(product);
+    expect(offerPrice).toBe(14.99);
+    expect(product.name).toBe('test - ON SALE!');
+  });
+
+  it('will not return the same result twice', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let offerPrice = getOffer(product);
+    expect(offerPrice).toBe(14.99);
+    expect(product.name).toBe('test - ON SALE!');
+
+    offerPrice = getOffer(product);
+    expect(product.name).toBe('test - ON SALE!');
+  });
+});
+
+describe('Refactor 1', (): void => {
+  function getOfferPrice(product: Product): number {
+    if (
+      product.price.sale !== undefined &&
+      product.price.sale < product.price.list
+    ) {
+      return product.price.sale;
+    }
+    return product.price.list;
+  }
+
+  function getDisplayName(product: Product): string {
+    if (
+      product.price.sale !== undefined &&
+      product.price.sale < product.price.list
+    ) {
+      return `${product.name} - ON SALE!`;
+    }
+    return product.name;
+  }
+
+  function createViewProduct(product: Product): ViewProduct {
+    const offerPrice = getOfferPrice(product);
+    const name = getDisplayName(product);
+    return { ...product, name, offerPrice };
+  }
+
+  it('will not return the same result twice', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let offerPrice = getOffer(product);
+    expect(offerPrice).toBe(14.99);
+    expect(product.name).toBe('test - ON SALE!');
+
+    offerPrice = getOffer(product);
+    expect(product.name).toBe('test - ON SALE!');
+  });
+
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let viewProduct: ViewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    viewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+  });
+});
+
+describe('Refactor 2', (): void => {
+  function isProductOnSale(product: Product): boolean {
+    return (
+      product.price.sale !== undefined &&
+      product.price.sale < product.price.list
+    );
+  }
+
+  function getOfferPrice(product: Product): number {
+    if (isProductOnSale(product)) {
+      return product.price.sale!;
+    }
+    return product.price.list;
+  }
+
+  function getDisplayName(product: Product): string {
+    if (isProductOnSale(product)) {
+      return `${product.name} - ON SALE!`;
+    }
+    return product.name;
+  }
+
+  function createViewProduct(product: Product): ViewProduct {
+    const offerPrice = getOfferPrice(product);
+    const name = getDisplayName(product);
+    return { ...product, name, offerPrice };
+  }
+
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let viewProduct: ViewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    viewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    expect(product.name).toBe('test');
+  });
+});
+
+describe('Refactor 3 reusable', (): void => {
+  function isOnSale(price: Price): boolean {
+    return price.sale !== undefined && price.sale < price.list;
+  }
+
+  function getOfferPrice(product: Product): number {
+    if (isOnSale(product.price)) {
+      return product.price.sale!;
+    }
+    return product.price.list;
+  }
+
+  function getDisplayName(product: Product): string {
+    if (isOnSale(product.price)) {
+      return `${product.name} - ON SALE!`;
+    }
+    return product.name;
+  }
+
+  function createViewProduct(product: Product): ViewProduct {
+    const offerPrice = getOfferPrice(product);
+    const name = getDisplayName(product);
+    return { ...product, name, offerPrice };
+  }
+
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let viewProduct: ViewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    viewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    expect(product.name).toBe('test');
+  });
+});
+
+describe('Refactor 4 expressions', (): void => {
+  const isOnSale = (price: Price): boolean =>
+    price.sale !== undefined && price.sale < price.list;
+
+  const getOfferPrice = (product: Product): number =>
+    isOnSale(product.price) ? product.price.sale! : product.price.list;
+
+  const getDisplayName = (product: Product): string =>
+    isOnSale(product.price) ? `${product.name} - ON SALE!` : product.name;
+
+  const createViewProduct = (product: Product): ViewProduct => ({
+    ...product,
+    name: getDisplayName(product),
+    offerPrice: getOfferPrice(product),
+  });
+
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    const viewProduct: ViewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    const viewProduct2 = createViewProduct(product);
+    expect(viewProduct2.name).toBe('test - ON SALE!');
+    expect(viewProduct2.offerPrice).toBe(14.99);
+
+    expect(product.name).toBe('test');
+  });
+
+  it('should throw error on attempt to modify frozen object', () => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    Object.freeze(price);
+    const product: Product = { name: 'test', price };
+    Object.freeze(product);
+
+    expect(() => {
+      product.name = 'Mr. Freeze';
+    }).toThrow();
+    expect(() => {
+      product.price.sale = 0.99;
+    }).toThrow();
+  });
+});
 
 describe('const', () => {
   it('const will not prevent modification of array member', () => {
@@ -25,17 +273,39 @@ describe('const', () => {
 });
 
 describe('Object.freeze', (): void => {
+  const isOnSale = (product: Product): boolean =>
+    product.price.sale !== undefined && product.price.sale < product.price.list;
+
+  const createViewProduct = (product: Product): ViewProduct => {
+    const offerPrice = getOffer(product);
+    return { ...product, offerPrice };
+  };
+
+  // const getViewProduct2 = (product: Product): ViewProduct => {
+  //   const offerPrice = getOffer(product);
+  //   return { ...product, offerPrice };
+  // };
+
+  const getOffer = (product: Product): number => {
+    if (isOnSale(product)) {
+      return product.price.sale!;
+    }
+    return product.price.list;
+  };
+
   it('should not throw error on attempt to update value', () => {
-    const price: Price = { list: 699.99, sale: 649.99 };
+    const price: Price = { list: 19.99, sale: 14.99 };
     const product: Product = { name: 'test', price };
     Object.freeze(product);
 
     product.price.sale = 1;
+    product.price.sale = getOffer(product);
     expect(product.price.sale).toEqual(1);
+    createViewProduct(product);
   });
 
   it('should throw error on attempt to modify frozen nested objet', () => {
-    const price: Price = { list: 699.99, sale: 649.99 };
+    const price: Price = { list: 19.99, sale: 14.99 };
     Object.freeze(price);
     const product: Product = { name: 'test', price };
 
@@ -45,7 +315,7 @@ describe('Object.freeze', (): void => {
   });
 
   it('should throw error on attempt to modify frozen object', () => {
-    const price: Price = { list: 699.99, sale: 649.99 };
+    const price: Price = { list: 19.99, sale: 14.99 };
     Object.freeze(price);
     const product: Product = { name: 'test', price };
     Object.freeze(product);
@@ -62,16 +332,21 @@ describe('Object.freeze', (): void => {
   const deepFreeze = cloneDeepWith(frozen);
 
   it('should throw error on attempt to modify frozen object', () => {
-    const price: Price = { list: 699.99, sale: 649.99 };
+    const price: Price = { list: 19.99, sale: 14.99 };
     const product: Product = { name: 'test', price };
     const frozen = deepFreeze(product);
+    const price2: Price = { list: 19.99, sale: 1 };
 
-    const price2: Price = { list: 699.99, sale: 1 };
     expect(() => {
       frozen.name = 'Elsa';
     }).toThrow();
+
     expect(() => {
       frozen.price = price2;
+    }).toThrow();
+
+    expect(() => {
+      frozen.price.sale = 0.05;
     }).toThrow();
   });
 });
@@ -101,7 +376,7 @@ describe('typescript readonly', (): void => {
     expect(ary.length).toBe(5);
   });
 
-  const getOfferPrice = (product: Readonly<Product>): number => {
+  const getOffer = (product: Readonly<Product>): number => {
     if (product.price.sale !== undefined) {
       // @ts-expect-error Can't assign to name as it is a read-only property
       product.name = `${product.name} - ON SALE!`;
@@ -109,6 +384,18 @@ describe('typescript readonly', (): void => {
     }
     return product.price.list;
   };
+
+  it('will prevent modification of function parameters', (): void => {
+    const product: Product = {
+      name: 'No Touchy',
+      price: { list: 19.99, sale: 14.99 },
+    };
+    const offerPrice = getOffer(product);
+    expect(offerPrice).toBe(14.99);
+  });
+
+  const getOfferPrice = (product: Readonly<Product>): number =>
+    product.price.sale !== undefined ? product.price.sale : product.price.list;
 
   it('will prevent modification of function parameters', (): void => {
     const product: Product = {

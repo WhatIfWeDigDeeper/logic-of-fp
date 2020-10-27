@@ -8,6 +8,15 @@ export interface Product {
   price: Price;
 }
 
+export interface ViewProduct extends Product {
+  offerPrice: number;
+}
+
+export interface LineItem {
+  quantity: number;
+  item: Product;
+}
+
 // export class Product {
 //   name: string;
 //   price: Price;
