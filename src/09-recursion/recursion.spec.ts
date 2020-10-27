@@ -2,6 +2,8 @@ import { isEmpty } from 'lodash/fp';
 import { head } from 'lodash/fp';
 import { tail } from 'lodash/fp';
 
+// see https://2ality.com/2015/06/tail-call-optimization.html
+
 export const recursiveSum = (ary: Array<number>): number =>
   isEmpty(ary) ? 0 : head(ary)! + recursiveSum(tail(ary));
 
@@ -23,6 +25,8 @@ const fibTrampoline = (
 ): number | ((n: number, first: number, second: number) => any) =>
   nth === 0 ? first : () => fibTrampoline(--nth, second, first + second);
 
+// adapted from
+// https://stackoverflow.com/a/54719630/753279
 const trampoline = (
   fn: (...args: any[]) => unknown | ((...args: any[]) => unknown)
 ) => (...args: unknown[]) => {
