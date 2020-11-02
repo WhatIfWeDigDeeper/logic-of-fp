@@ -21,6 +21,12 @@ describe('for loops vs es5 vs lodash fp', () => {
       .filter((x) => !Number.isNaN(x))
       .reduce((acc, x) => acc + x, 0);
     expect(sum).toEqual(11);
+
+    // map and filter return an array and then
+    // array methods are called on the returned array
+    // myList.map => Array<number | NaN>
+    // [].filter => number[]
+    // [].reduce => number;
   });
 
   it('should use lodash standard map, filter, reduce', () => {
