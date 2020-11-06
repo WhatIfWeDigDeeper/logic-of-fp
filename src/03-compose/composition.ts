@@ -1,6 +1,6 @@
-import { compose, flow } from 'lodash/fp';
+import { compose, map, pipe } from 'lodash/fp';
 
-import { LineItem, Price, Product } from '../types';
+import { LineItem, Product } from '../types';
 
 const getOfferPrice = (product: Readonly<Product>): number =>
   product.price.sale !== undefined ? product.price.sale : product.price.list;
@@ -28,7 +28,7 @@ const products: Product[] = [
   },
 ];
 
-describe('flow', () => {
+describe('pipe or flow', () => {
   it('should use map reduce', () => {
     const subtotal = products
       .map((product) =>
@@ -49,12 +49,12 @@ describe('flow', () => {
   });
 
   it('should compose and calculate charge amount', () => {
-    const subtotal = flow(getOfferPrices, sum)(products);
+    const subtotal = pipe(getOfferPrices, sum)(products);
     expect(subtotal).toEqual(115);
   });
 
   it('should compose and calculate charge amount', () => {
-    const calculateSubtotal = flow(getOfferPrices, sum);
+    const calculateSubtotal = pipe(getOfferPrices, sum);
 
     expect(calculateSubtotal(products)).toEqual(115);
   });
@@ -89,19 +89,26 @@ describe('line items', () => {
     },
   ];
 
-  const sum = (ns: number[]): number => ns.reduce(add, 0);
+  // const sum = (ns: number[]): number => ns.reduce(add, 0);
 
-  const getOfferPrices = (products: readonly Product[]): number[] =>
-    products.map(getOfferPrice);
+  // const getOfferPrices = (products: readonly Product[]): number[] =>
+  //   products.map(getOfferPrice);
 
-  const getTotal = (prices: number[]): number =>
-    prices.reduce((acc, item) => acc + item, 0);
+  // const getTotal = (prices: number[]): number =>
+  //   prices.reduce((acc, item) => acc + item, 0);
 
   const getLineItemOfferPrice = (lineItem: LineItem): number =>
     lineItem.quantity * getOfferPrice(lineItem.item);
 
   it('should calculate total using array methods', (): void => {
     const total = lineItems.map(getLineItemOfferPrice);
+    const expectedTotal = 39.99 * 2 + 0.99;
+    expect(total).toBe(expectedTotal);
+  });
+
+  it('should calculate total using array methods', (): void => {
+    const calculateLineItemTotals = pipe(map(getLineItemOfferPrice));
+    const total = calculateLineItemTotals(lineItems);
     const expectedTotal = 39.99 * 2 + 0.99;
     expect(total).toBe(expectedTotal);
   });

@@ -1,14 +1,13 @@
 import { curry } from 'lodash/fp';
 import { curryRight } from 'lodash/fp';
 import { map } from 'lodash/fp';
-import { partial } from 'lodash/fp';
+// import { partial } from 'lodash/fp';
 
 const myList = ['1', '2', '3'];
 const parseIntBase10 = curryRight(parseInt)(10);
 console.log(parseIntBase10('44'));
 
 myList.map((x) => parseInt(x, 10));
-map(myList, parseInt);
 map(parseInt)(myList);
 
 // partial vs currying
