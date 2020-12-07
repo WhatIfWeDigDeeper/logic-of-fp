@@ -1,6 +1,17 @@
 import { compose, map, pipe } from 'lodash/fp';
 
+// import { LineItem, Product, Price } from '../types';
 import { LineItem, Product } from '../types';
+
+// interface PriceSavings {
+//   offerPrice: number;
+//   savings: number;
+// }
+
+// const getPriceSavings = (price: Readonly<Price>): PriceSavings =>
+//   price.sale !== undefined
+//     ?  { offerPrice: price.sale, savings: price.list - price.sale }
+//     : { offerPrice: price.list, savings: 0 };
 
 const getOfferPrice = (product: Readonly<Product>): number =>
   product.price.sale !== undefined ? product.price.sale : product.price.list;
@@ -113,3 +124,138 @@ describe('line items', () => {
     expect(total).toBe(expectedTotal);
   });
 });
+
+// property assertion testing
+// const jsc = require('jsverify');
+// see WhenUpdatingPricesTests.ts in v2 api
+// it('should getUpdatedPricing with combinatorial tests', () => {
+//   const positiveNumber = jsc.number(0.01, 999999.99);
+//   const nullValue = jsc.constant(null);
+//   expect(
+//     jsc.check(
+//       jsc.forall(
+//         // cart
+//         positiveNumber,
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         // repo
+//         positiveNumber,
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         jsc.oneof([positiveNumber, nullValue]),
+//         (
+//           list: any,
+//           sale: any,
+//           pvList: any,
+//           pvSale: any,
+//           rList: any,
+//           rSale: any,
+//           rpvList: any,
+//           rpvSale: any
+//         ) => {
+//           const cartItemProduct = createItemProduct(list, sale, pvList, pvSale);
+//           const repoItemProduct = createItemProduct(
+//             rList,
+//             rSale,
+//             rpvList,
+//             rpvSale
+//           );
+//           const actual = getUpdatedPricing(cartItemProduct, repoItemProduct);
+//           // precedence order.
+//           return (
+//             actual.pricing.listPrice === rpvList ||
+//             actual.pricing.listPrice === rList ||
+//             actual.pricing.listPrice === pvList ||
+//             actual.pricing.listPrice === list
+//           );
+//         }
+//       )
+//     ),
+//     { rngState: '143e9c5f037a8c37b2' } as any
+//   ).equals(true);
+// });
+
+// it('should format client pricing with combinatorics', () => {
+//   const valueIntPrice = jsc.record({ value: jsc.nat() });
+//   const valueNullPrice = jsc.record({ value: jsc.constant(null) });
+
+//   expect(
+//       jsc.check(
+//           jsc.forall(
+//               jsc.oneof([valueIntPrice]),
+//               jsc.oneof([valueIntPrice, valueNullPrice]),
+//               (listPrice: any, salePrice: any) => {
+//                   const pricing = {
+//                       listPrice,
+//                       salePrice,
+//                   };
+//                   const result = getActiveClientPricing({ pricing, price: listPrice } as any, null);
+//                   return (
+//                       doesPriceMatch(listPrice, result.listPrice) &&
+//                       (doesSalePriceMatch(salePrice, result.salePrice) ||
+//                           pricing.salePrice.value >= pricing.listPrice.value)
+//                   );
+//               }
+//           )
+//       ),
+//       { rngState: '153e9c5f037a8c37b2' } as any
+//   ).equals(true);
+// });
+
+// it('should return full variant combinatorial pricing', () => {
+//   expect(
+//       jsc.check(
+//           jsc.forall(jsc.number, jsc.number, jsc.string, (listPrice: any, salePrice: any, pvId: string) => {
+//               const variantPricing = { listPrice, salePrice };
+//               const prod = createProductWithVariant(variantPricing, listPrice, pvId);
+//               const actual = getProductVariantPricing(prod);
+//               return actual === variantPricing;
+//           })
+//       ),
+//       { rngState: '123e9c5f037a8b21d6' } as any
+//   ).equals(true);
+// });
+
+// it('should getUpdatedPricing with combinatorial tests', () => {
+//   const positiveNumber = jsc.number(0.01, 999999.99);
+//   const nullValue = jsc.constant(null);
+//   expect(
+//       jsc.check(
+//           jsc.forall(
+//               // cart
+//               positiveNumber,
+//               jsc.oneof([positiveNumber, nullValue]),
+//               jsc.oneof([positiveNumber, nullValue]),
+//               jsc.oneof([positiveNumber, nullValue]),
+//               // repo
+//               positiveNumber,
+//               jsc.oneof([positiveNumber, nullValue]),
+//               jsc.oneof([positiveNumber, nullValue]),
+//               jsc.oneof([positiveNumber, nullValue]),
+//               (
+//                   list: any,
+//                   sale: any,
+//                   pvList: any,
+//                   pvSale: any,
+//                   rList: any,
+//                   rSale: any,
+//                   rpvList: any,
+//                   rpvSale: any
+//               ) => {
+//                   const cartItemProduct = createItemProduct(list, sale, pvList, pvSale);
+//                   const repoItemProduct = createItemProduct(rList, rSale, rpvList, rpvSale);
+//                   const actual = getUpdatedPricing(cartItemProduct, repoItemProduct);
+//                   // precedence order.
+//                   return (
+//                       actual.pricing.listPrice === rpvList ||
+//                       actual.pricing.listPrice === rList ||
+//                       actual.pricing.listPrice === pvList ||
+//                       actual.pricing.listPrice === list
+//                   );
+//               }
+//           )
+//       ),
+//       { rngState: '143e9c5f037a8c37b2' } as any
+//   ).equals(true);
+// });
