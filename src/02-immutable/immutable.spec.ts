@@ -1,6 +1,6 @@
 import * as R from 'ramda';
 import { cloneDeepWith } from 'lodash/fp';
-import { produce } from 'immer';
+// import { produce } from 'immer';
 import { List, Map, Range, Seq } from 'immutable';
 
 import { Price, Product, ViewProduct } from '../types';
@@ -121,23 +121,75 @@ describe('Refactor 1', (): void => {
     expect(viewProduct.offerPrice).toBe(14.99);
   });
 });
+describe('Refactor 1.1 readonly', (): void => {
+  function getOfferPrice(product: Readonly<Product>): number {
+    if (
+      product.price.sale !== undefined &&
+      product.price.sale < product.price.list
+    ) {
+      return product.price.sale;
+    }
+    return product.price.list;
+  }
 
-describe('Refactor 2', (): void => {
-  function isProductOnSale(product: Product): boolean {
+  function getDisplayName(product: Readonly<Product>): string {
+    if (
+      product.price.sale !== undefined &&
+      product.price.sale < product.price.list
+    ) {
+      return `${product.name} - ON SALE!`;
+    }
+    return product.name;
+  }
+
+  function createViewProduct(product: Readonly<Product>): ViewProduct {
+    const offerPrice = getOfferPrice(product);
+    const name = getDisplayName(product);
+    return { ...product, name, offerPrice };
+  }
+
+  it('will not return the same result twice', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let offerPrice = getOfferPrice(product);
+    expect(offerPrice).toBe(14.99);
+    expect(product.name).toBe('test - ON SALE!');
+
+    offerPrice = getOfferPrice(product);
+    expect(product.name).toBe('test - ON SALE!');
+  });
+
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'test', price };
+
+    let viewProduct: ViewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+
+    viewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
+    expect(viewProduct.offerPrice).toBe(14.99);
+  });
+});
+
+describe('Refactor 2 productOnSale', (): void => {
+  function isProductOnSale(product: Readonly<Product>): boolean {
     return (
       product.price.sale !== undefined &&
       product.price.sale < product.price.list
     );
   }
 
-  function getOfferPrice(product: Product): number {
+  function getOfferPrice(product: Readonly<Product>): number {
     if (isProductOnSale(product)) {
       return product.price.sale!;
     }
     return product.price.list;
   }
 
-  function getDisplayName(product: Product): string {
+  function getDisplayName(product: Readonly<Product>): string {
     if (isProductOnSale(product)) {
       return `${product.name} - ON SALE!`;
     }
@@ -166,26 +218,26 @@ describe('Refactor 2', (): void => {
   });
 });
 
-describe('Refactor 3 reusable', (): void => {
-  function isOnSale(price: Price): boolean {
+describe('Refactor 3 Readonly', (): void => {
+  function isOnSale(price: Readonly<Price>): boolean {
     return price.sale !== undefined && price.sale < price.list;
   }
 
-  function getOfferPrice(product: Product): number {
-    if (isOnSale(product.price)) {
-      return product.price.sale!;
+  function getOfferPrice(price: Readonly<Price>): number {
+    if (isOnSale(price)) {
+      return price.sale!;
     }
-    return product.price.list;
+    return price.list;
   }
 
-  function getDisplayName(product: Product): string {
+  function getDisplayName(product: Readonly<Product>): string {
     if (isOnSale(product.price)) {
       return `${product.name} - ON SALE!`;
     }
     return product.name;
   }
 
-  function createViewProduct(product: Product): ViewProduct {
+  function createViewProduct(product: Readonly<Product>): ViewProduct {
     const offerPrice = getOfferPrice(product);
     const name = getDisplayName(product);
     return { ...product, name, offerPrice };
@@ -208,19 +260,19 @@ describe('Refactor 3 reusable', (): void => {
 });
 
 describe('Refactor 4 expressions', (): void => {
-  const isOnSale = (price: Price): boolean =>
+  const isOnSale = (price: Readonly<Price>): boolean =>
     price.sale !== undefined && price.sale < price.list;
 
-  const getOfferPrice = (product: Product): number =>
-    isOnSale(product.price) ? product.price.sale! : product.price.list;
+  const getOfferPrice = (price: Readonly<Price>): number =>
+    isOnSale(price) ? price.sale! : price.list;
 
-  const getDisplayName = (product: Product): string =>
+  const getDisplayName = (product: Readonly<Product>): string =>
     isOnSale(product.price) ? `${product.name} - ON SALE!` : product.name;
 
-  const createViewProduct = (product: Product): ViewProduct => ({
+  const createViewProduct = (product: Readonly<Product>): ViewProduct => ({
     ...product,
     name: getDisplayName(product),
-    offerPrice: getOfferPrice(product),
+    offerPrice: getOfferPrice(product.price),
   });
 
   it('will get offerPrice and add ON SALE message', (): void => {
@@ -472,43 +524,43 @@ describe('immutable.js', (): void => {
 });
 
 // https://immerjs.github.io/immer/docs/introduction
-describe('immer', (): void => {
-  interface ToDo {
-    todo: string;
-    done?: boolean;
-  }
-  it('will not modify original state', (): void => {
-    const baseState: ToDo[] = [
-      {
-        todo: 'Learn typescript',
-        done: true,
-      },
-      {
-        todo: 'Try immer',
-        done: false,
-      },
-    ];
+// describe('immer', (): void => {
+//   interface ToDo {
+//     todo: string;
+//     done?: boolean;
+//   }
+//   it('will not modify original state', (): void => {
+//     const baseState: ToDo[] = [
+//       {
+//         todo: 'Learn typescript',
+//         done: true,
+//       },
+//       {
+//         todo: 'Try immer',
+//         done: false,
+//       },
+//     ];
 
-    const nextState = produce(baseState, (draftState) => {
-      draftState.push({ todo: 'Tweet about it' });
-      draftState[1].done = true;
-    });
+//     const nextState = produce(baseState, (draftState) => {
+//       draftState.push({ todo: 'Tweet about it' });
+//       draftState[1].done = true;
+//     });
 
-    // the new item is only added to the next state,
-    // base state is unmodified
-    expect(baseState.length).toBe(2);
-    expect(nextState.length).toBe(3);
+//     // the new item is only added to the next state,
+//     // base state is unmodified
+//     expect(baseState.length).toBe(2);
+//     expect(nextState.length).toBe(3);
 
-    // same for the changed 'done' prop
-    expect(baseState[1].done).toBe(false);
-    expect(nextState[1].done).toBe(true);
+//     // same for the changed 'done' prop
+//     expect(baseState[1].done).toBe(false);
+//     expect(nextState[1].done).toBe(true);
 
-    // unchanged data is structurally shared
-    expect(nextState[0]).toBe(baseState[0]);
-    // changed data not (dûh)
-    expect(nextState[1]).not.toBe(baseState[1]);
-  });
-});
+//     // unchanged data is structurally shared
+//     expect(nextState[0]).toBe(baseState[0]);
+//     // changed data not (dûh)
+//     expect(nextState[1]).not.toBe(baseState[1]);
+//   });
+// });
 
 describe('Ramda lenses', () => {
   it('should return new product when modifying through lens', () => {

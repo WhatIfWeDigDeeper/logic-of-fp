@@ -44,10 +44,21 @@ describe('add curry and stir', (): void => {
     expect(add(2)(2)).toBe(4);
   });
 
-  it('lambda', (): void => {
+  it('should add 3 because I am lazy', (): void => {
+    const add3 = (x: number) => (y: number) => (z: number) => x + y + z;
+
+    const add2: (y: number) => (z: number) => number = add3(8);
+    const add1: (z: number) => number = add2(16);
+    const result: number = add1(32);
+
+    expect(result).toBe(56);
+  });
+
+  it('should provide a slightly more realistic example', (): void => {
     const add = (x: number) => (y: number) => x + y;
 
     const increment = add(1);
+
     expect(increment(3)).toBe(4);
   });
 });

@@ -40,7 +40,8 @@ type Returned = InitialOrderData &
 type Order = Unpaid | Paid | Shipped | Returned;
 
 describe('type enforces correctness', (): void => {
-  it('should not allow an unpaid order to ship', (): void => {
+  xit('should not allow an unpaid order to ship', (): void => {
+    // @ts-expect-error
     const order: Shipped = {
       orderId: 123,
       // amount: 199.95,
