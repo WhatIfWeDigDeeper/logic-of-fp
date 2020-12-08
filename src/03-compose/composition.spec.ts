@@ -1,7 +1,7 @@
-import { compose, map, pipe } from 'lodash/fp';
+import { compose, filter, map, pipe } from 'lodash/fp';
 
 // import { LineItem, Product, Price } from '../types';
-import { LineItem, Product } from '../types';
+import { LineItem, Product, Price } from '../types';
 
 // interface PriceSavings {
 //   offerPrice: number;
@@ -13,28 +13,33 @@ import { LineItem, Product } from '../types';
 //     ?  { offerPrice: price.sale, savings: price.list - price.sale }
 //     : { offerPrice: price.list, savings: 0 };
 
-const getOfferPrice = (product: Readonly<Product>): number =>
-  product.price.sale !== undefined ? product.price.sale : product.price.list;
+const isOnSale = (price: Readonly<Price>): boolean =>
+  price.sale !== undefined && price.sale < price.list;
 
-const add = (a: number, b: number) => a + b;
+const isProductOnSale = (product: Readonly<Product>): boolean =>
+  isOnSale(product.price);
 
-const sum = (ns: number[]) => ns.reduce(add, 0);
+const getOfferPrice = (price: Readonly<Price>): number =>
+  isOnSale(price) ? price.sale! : price.list;
+
+const getProductOfferPrice = (product: Readonly<Product>): number =>
+  getOfferPrice(product.price);
+
 const getOfferPrices = (products: readonly Product[]): number[] =>
-  products.map(getOfferPrice);
+  products.map(getProductOfferPrice);
 
 const products: Product[] = [
   {
     name: 'Baby Yoda',
     price: {
-      list: 40,
-      sale: 39.99,
+      list: 30,
     },
   },
   {
     name: 'DO NOT Tickle me Elmo',
     price: {
       list: 29.95,
-      sale: 0.99,
+      sale: 2,
     },
   },
 ];
@@ -42,41 +47,67 @@ const products: Product[] = [
 describe('pipe or flow', () => {
   it('should use map reduce', () => {
     const subtotal = products
-      .map((product) =>
-        product.price.sale !== undefined &&
-        product.price.sale < product.price.list
-          ? product.price.sale
-          : product.price.list
-      )
+      .map(getProductOfferPrice)
       .reduce((acc, offerPrice) => acc + offerPrice, 0);
 
-    expect(subtotal).toEqual(115);
+    expect(subtotal).toBe(32);
   });
 
-  it('should use getOfferPrice and remove anonymous lambdas', () => {
-    const subtotal = products.map(getOfferPrice).reduce(add, 0);
+  const add = (a: number, b: number) => a + b;
 
-    expect(subtotal).toEqual(115);
+  it('should replace anonymous fn with add', () => {
+    const subtotal = products.map(getProductOfferPrice).reduce(add, 0);
+
+    expect(subtotal).toBe(32);
   });
 
-  it('should compose and calculate charge amount', () => {
+  const sum = (ns: number[]) => ns.reduce(add, 0);
+
+  // it('should avoid monkey patching', () => {
+  //   const subtotal = products.map(getProductOfferPrice).sum();
+
+  //   expect(subtotal).toBe(32);
+  // });
+
+  // don't want to monkey patch
+  // products.map(getProductOfferPrice).sum();
+
+  it('should use lodash map', () => {
+    const subtotal = sum(map(getProductOfferPrice, products));
+
+    expect(subtotal).toBe(32);
+  });
+
+  it('should use lodash map and filter', () => {
+    const saleSubtotal = sum(
+      map(getProductOfferPrice, filter(isProductOnSale, products))
+    );
+
+    expect(saleSubtotal).toBe(2);
+  });
+
+  it('should use lodash pipe', () => {
     const subtotal = pipe(getOfferPrices, sum)(products);
-    expect(subtotal).toEqual(115);
+
+    expect(subtotal).toBe(32);
   });
 
-  it('should compose and calculate charge amount', () => {
-    const calculateSubtotal = pipe(getOfferPrices, sum);
+  const calculateSubtotal = pipe(getOfferPrices, sum);
 
-    expect(calculateSubtotal(products)).toEqual(115);
+  it('should calculate subtotal', () => {
+    const subtotal = calculateSubtotal(products);
+
+    expect(subtotal).toBe(32);
   });
 
-  it('should compose and calculate charge amount', () => {
+  it('should use lodash compose', () => {
     const subtotal = compose(sum, getOfferPrices)(products);
-    expect(subtotal).toEqual(115);
+
+    expect(subtotal).toBe(32);
   });
 });
 
-describe('line items', () => {
+xdescribe('line items', () => {
   const lineItems: LineItem[] = [
     {
       quantity: 2,
@@ -109,7 +140,7 @@ describe('line items', () => {
   //   prices.reduce((acc, item) => acc + item, 0);
 
   const getLineItemOfferPrice = (lineItem: LineItem): number =>
-    lineItem.quantity * getOfferPrice(lineItem.item);
+    lineItem.quantity * getOfferPrice(lineItem.item.price);
 
   it('should calculate total using array methods', (): void => {
     const total = lineItems.map(getLineItemOfferPrice);

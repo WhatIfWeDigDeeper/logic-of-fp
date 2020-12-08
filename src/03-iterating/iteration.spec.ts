@@ -26,7 +26,7 @@ describe('for loops vs es5 vs lodash fp', () => {
   });
 
   it('should filter list', (): void => {
-    const myList = [1, 2, 3, undefined, 5, null, 7];
+    const myList = [1, 2, 3, NaN, 5, NaN, 7];
 
     const numbers = myList.filter((x) => !Number.isNaN(x));
 

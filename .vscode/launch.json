@@ -6,7 +6,7 @@
           "name": "Active Unit Test",
           "program": "${workspaceFolder}/node_modules/jest/bin/jest",
           "args": [
-              "${relativeFile}",
+            "${relativeFile}",
               "--runInBand",
               "--env",
               "node",
