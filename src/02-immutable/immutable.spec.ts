@@ -96,16 +96,15 @@ describe('Refactor 1', (): void => {
     return { ...product, name, offerPrice };
   }
 
-  it('will not return the same result twice', (): void => {
+  it('will return the same result twice', (): void => {
     const price: Price = { list: 19.99, sale: 14.99 };
     const product: Product = { name: 'test', price };
 
-    let offerPrice = getOfferPrice(product);
-    expect(offerPrice).toBe(14.99);
-    expect(product.name).toBe('test - ON SALE!');
+    const viewProduct = createViewProduct(product);
+    expect(viewProduct.name).toBe('test - ON SALE!');
 
-    offerPrice = getOfferPrice(product);
-    expect(product.name).toBe('test - ON SALE!');
+    const viewProduct2 = createViewProduct(product);
+    expect(viewProduct2.name).toBe('test - ON SALE!');
   });
 
   it('will get offerPrice and add ON SALE message', (): void => {
@@ -238,7 +237,7 @@ describe('Refactor 3 Readonly', (): void => {
   }
 
   function createViewProduct(product: Readonly<Product>): ViewProduct {
-    const offerPrice = getOfferPrice(product);
+    const offerPrice = getOfferPrice(product.price);
     const name = getDisplayName(product);
     return { ...product, name, offerPrice };
   }

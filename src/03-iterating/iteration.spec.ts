@@ -15,6 +15,28 @@ describe('for loops vs es5 vs lodash fp', () => {
     expect(sum).toEqual(11);
   });
 
+  it('should filter list', (): void => {
+    const myList = ['1', '2', '3', 'oops', '5'];
+
+    const numbers = myList
+      .map((x: string) => parseInt(x))
+      .filter((x) => !Number.isNaN(x));
+
+    expect(numbers).toEqual([1, 2, 3, 5]);
+  });
+
+  it('should filter list', (): void => {
+    const myList = [1, 2, 3, undefined, 5, null, 7];
+
+    const numbers = myList.filter((x) => !Number.isNaN(x));
+
+    // const numbers = myList
+    //   .map((x: string) => parseInt(x))
+    //   .filter((x) => !Number.isNaN(x));
+
+    expect(numbers).toEqual([1, 2, 3, 5, 7]);
+  });
+
   it('should use ES5 array prototype functions for map, filter, reduce', () => {
     const sum = myList
       .map((x: string) => parseInt(x))

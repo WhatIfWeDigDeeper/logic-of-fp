@@ -6,6 +6,8 @@ export interface Price {
 export interface Product {
   name: string;
   price: Price;
+  category?: string;
+  hidden?: boolean;
 }
 
 export interface ViewProduct extends Product {
