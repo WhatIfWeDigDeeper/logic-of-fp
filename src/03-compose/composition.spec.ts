@@ -61,7 +61,17 @@ describe('pipe or flow', () => {
     expect(subtotal).toBe(32);
   });
 
-  const sum = (ns: number[]) => ns.reduce(add, 0);
+  const sum = (ns: number[]): number => ns.reduce(add, 0);
+
+  // const t = getOfferPrices(products);
+  // ->>
+  // const prices = [30, 2];
+
+  // sum([30, 2]);
+
+  // sum([30, 2]);
+
+  // const sumPrice = 32;
 
   // it('should avoid monkey patching', () => {
   //   const subtotal = products.map(getProductOfferPrice).sum();
@@ -290,3 +300,31 @@ xdescribe('line items', () => {
 //       { rngState: '143e9c5f037a8c37b2' } as any
 //   ).equals(true);
 // });
+
+interface Square {
+  kind: 'square';
+  size: number;
+}
+interface Rectangle {
+  kind: 'rectangle';
+  width: number;
+  height: number;
+}
+type Shape = Square | Rectangle;
+
+function area(s: Shape) {
+  switch (s.kind) {
+    case 'square':
+      return s.size * s.size;
+    case 'rectangle':
+      return s.width * s.height;
+    default:
+      return assertNever(s);
+  }
+}
+
+function assertNever(_: never): never {
+  throw new Error('Unexpected value. Should have been never.');
+}
+
+area({ kind: 'square', size: 40 });

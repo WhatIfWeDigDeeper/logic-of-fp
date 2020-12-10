@@ -61,4 +61,15 @@ describe('add curry and stir', (): void => {
 
     expect(increment(3)).toBe(4);
   });
+
+  it('should use lodash curry function to auto-convert to a function creator', (): void => {
+    const standardAdd = (x: number, y: number) => x + y;
+    const createFns = curry;
+
+    const add = createFns(standardAdd);
+
+    const increment = add(1);
+
+    expect(increment(3)).toBe(4);
+  });
 });
