@@ -6,6 +6,11 @@ import { List, Map, Range, Seq } from 'immutable';
 import { Price, Product, ViewProduct } from '../types';
 
 describe('Mutable parameter', (): void => {
+  function createViewProduct(product: Product): ViewProduct {
+    const offerPrice = getOffer(product);
+    return { ...product, offerPrice };
+  }
+
   function getOffer(product: Product): number {
     if (
       product.price.sale !== undefined &&
@@ -17,12 +22,29 @@ describe('Mutable parameter', (): void => {
     return product.price.list;
   }
 
-  // function createViewProduct(product: Product): ViewProduct {
-  //   const offerPrice = getOffer(product);
-  //   const viewProduct: ViewProduct = product as ViewProduct;
-  //   viewProduct.offerPrice = offerPrice;
-  //   return viewProduct;
-  // }
+  it('will get offerPrice and add ON SALE message', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'Elmo', price };
+
+    const viewProduct = createViewProduct(product);
+
+    expect(viewProduct.offerPrice).toBe(14.99);
+    expect(viewProduct.name).toBe('Elmo - ON SALE!');
+  });
+
+  xit('will return the same result twice', (): void => {
+    const price: Price = { list: 19.99, sale: 14.99 };
+    const product: Product = { name: 'Elmo', price };
+
+    let viewProduct = createViewProduct(product);
+
+    expect(viewProduct.offerPrice).toBe(14.99);
+    expect(viewProduct.name).toBe('Elmo - ON SALE!');
+
+    viewProduct = createViewProduct(product);
+    expect(viewProduct.offerPrice).toBe(14.99);
+    expect(viewProduct.name).toBe('Elmo - ON SALE!');
+  });
 
   // it('will get offerPrice and add ON SALE message', (): void => {
   //   const price: Price = { list: 19.99, sale: 14.99 };
@@ -92,8 +114,8 @@ describe('Refactor 1', (): void => {
 
   function createViewProduct(product: Product): ViewProduct {
     const offerPrice = getOfferPrice(product);
-    const name = getDisplayName(product);
-    return { ...product, name, offerPrice };
+    const displayName = getDisplayName(product);
+    return { ...product, name: displayName, offerPrice };
   }
 
   it('will return the same result twice', (): void => {
@@ -229,7 +251,9 @@ describe('Refactor 3 Readonly', (): void => {
     return price.list;
   }
 
-  function getDisplayName(product: Readonly<Product>): string {
+  function getDisplayName(
+    product: Readonly<Pick<Product, 'price' | 'name'>>
+  ): string {
     if (isOnSale(product.price)) {
       return `${product.name} - ON SALE!`;
     }
@@ -265,7 +289,9 @@ describe('Refactor 4 expressions', (): void => {
   const getOfferPrice = (price: Readonly<Price>): number =>
     isOnSale(price) ? price.sale! : price.list;
 
-  const getDisplayName = (product: Readonly<Product>): string =>
+  const getDisplayName = (
+    product: Readonly<Pick<Product, 'price' | 'name'>>
+  ): string =>
     isOnSale(product.price) ? `${product.name} - ON SALE!` : product.name;
 
   const createViewProduct = (product: Readonly<Product>): ViewProduct => ({

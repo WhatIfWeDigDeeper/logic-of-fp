@@ -44,32 +44,113 @@ describe('add curry and stir', (): void => {
     expect(add(2)(2)).toBe(4);
   });
 
-  it('should add 3 because I am lazy', (): void => {
-    const add3 = (x: number) => (y: number) => (z: number) => x + y + z;
+  function addThree(x: number) {
+    return function (y: number) {
+      return function (z: number) {
+        return x + y + z;
+      };
+    };
+  }
 
-    const add2: (y: number) => (z: number) => number = add3(8);
-    const add1: (z: number) => number = add2(16);
-    const result: number = add1(32);
+  it('should add 3 the old fashioned way', (): void => {
+    const addTwo = addThree(8);
+    const addOne = addTwo(16);
+    const result = addOne(32);
 
     expect(result).toBe(56);
   });
 
-  it('should provide a slightly more realistic example', (): void => {
-    const add = (x: number) => (y: number) => x + y;
+  describe('es6', (): void => {
+    const addThree = (x: number) => (y: number) => (z: number) => x + y + z;
 
-    const increment = add(1);
+    it('should add 3 with es6 lambda functions', (): void => {
+      const addTwo: (y: number) => (z: number) => number = addThree(8);
+      const addOne: (z: number) => number = addTwo(16);
+      const result: number = addOne(32);
 
-    expect(increment(3)).toBe(4);
+      expect(result).toBe(56);
+    });
+
+    it('should provide a slightly more realistic example', (): void => {
+      const add = (x: number) => (y: number) => x + y;
+
+      const increment = add(1);
+
+      expect(increment(3)).toBe(4);
+    });
+
+    it('should use lodash curry function to auto-convert to a function creator', (): void => {
+      const standardAdd = (x: number, y: number) => x + y;
+      const createFns = curry;
+
+      const add = createFns(standardAdd);
+
+      const increment = add(1);
+
+      expect(increment(3)).toBe(4);
+    });
   });
+});
 
-  it('should use lodash curry function to auto-convert to a function creator', (): void => {
-    const standardAdd = (x: number, y: number) => x + y;
-    const createFns = curry;
+describe.only('Trade Offs', (): void => {
+  const sleepTimeout = 10000;
+  function sleep(ms: number): Promise<void> {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+  const add = (x: number, y: number) => x + y;
+  describe('Advantages', (): void => {
+    it('more reusable', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
 
-    const add = createFns(standardAdd);
+    it('easier to test', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
 
-    const increment = add(1);
+    it('less bugs from mutating state', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
 
-    expect(increment(3)).toBe(4);
+    it('parallel', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
+
+    it('human readable', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
+
+    it('easier to understand', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
+
+    it('easier to change', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
+
+    it('∴ LESS COMPLEXITY', (): void => {
+      expect(add(2, 4)).toBe(6);
+    });
+  });
+  describe('Disadvantages', (): void => {
+    it('many small functions', (): void => {
+      expect(add(2, 4)).toBe(8);
+    });
+
+    it('super spreader: pure fn, maybe/either', (): void => {
+      expect(add(2, 4)).toBe(8);
+    });
+
+    it('performance', async (): Promise<void> => {
+      await sleep(sleepTimeout);
+      expect(add(2, 4)).toBe(8);
+    });
+
+    it('complicated IO', (): void => {
+      expect(add(2, 4)).toBe(8);
+    });
+
+    it('STEEP LEARNING CURVE', (): void => {
+      expect(add(2, 4)).toBe(8);
+    });
   });
 });

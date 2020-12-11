@@ -104,9 +104,21 @@ describe('Higher Order functions', (): void => {
   });
 
   it('should pass a different function to get different behavior', (): void => {
-    const [onSale, list] = partition(isProductOnSale, products);
+    const [onSaleProducts, listProducts] = partition(
+      (product: Product) =>
+        product.price.sale !== undefined &&
+        product.price.sale < product.price.list,
+      products
+    );
 
-    expect(onSale.length).toBe(2);
-    expect(list.length).toBe(1);
+    expect(onSaleProducts.length).toBe(2);
+    expect(listProducts.length).toBe(1);
+  });
+
+  it('should pass a different function to get different behavior', (): void => {
+    const [onSaleProducts, listProducts] = partition(isProductOnSale, products);
+
+    expect(onSaleProducts.length).toBe(2);
+    expect(listProducts.length).toBe(1);
   });
 });
